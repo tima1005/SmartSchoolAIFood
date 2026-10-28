@@ -1,0 +1,87 @@
+
+{% extends "admin/base_site.html" %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тамак кошуу | SmartSchoolAIFood</title>
+    <link rel="stylesheet" href="{% static 'foodbot/style.css' %}">
+    <style>
+        .add-dish-page {
+            max-width: 760px;
+            margin: 50px auto;
+            padding: 28px;
+            color: #eaf2ff;
+            background: #0b1428;
+            border: 1px solid #263b61;
+            border-radius: 20px;
+        }
+        .add-dish-page h1 { color: #66b8ff; margin-bottom: 10px; }
+        .add-dish-page p { color: #aabbd5; }
+        .dish-form { display: grid; gap: 18px; margin-top: 25px; }
+        .dish-form p { display: grid; gap: 8px; margin: 0; }
+        .dish-form input:not([type="checkbox"]),
+        .dish-form textarea,
+        .dish-form select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            color: #fff;
+            background: #111f39;
+            border: 1px solid #345078;
+            border-radius: 10px;
+        }
+        .dish-form input[type="checkbox"] { width: 18px; height: 18px; }
+        .dish-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+        .dish-actions a, .dish-actions button {
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 10px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .dish-save { color: #061426; background: #65b8ff; }
+        .dish-back { color: #eaf2ff; background: #223653; }
+        .form-errors { color: #ff9292; }
+        @media (max-width: 600px) {
+            .add-dish-page { margin: 16px; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <main class="add-dish-page">
+        <h1>＋ Жаңы тамак кошуу</h1>
+        <p>Тамактын маалыматын толтуруп, мектеп менюсуна кошуңуз.</p>
+
+        <form method="post" enctype="multipart/form-data" class="dish-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+                <p>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small>{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <span class="form-errors">{{ field.errors }}</span>
+                    {% endif %}
+                </p>
+            {% endfor %}
+
+            <div class="dish-actions">
+                <button class="dish-save" type="submit">Сактоо жана менюга кошуу</button>
+                <a class="dish-back" href="{% url 'foodbot:home' %}">← Менюга кайтуу</a>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

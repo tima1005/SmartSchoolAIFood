@@ -1,0 +1,260 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Меню каталогу | Smart School Cafeteria</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #080d18;
+            color: #edf4ff;
+        }
+
+        header {
+            padding: 22px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #24334b;
+            background: #0c1423;
+        }
+
+        .logo {
+            color: #66f2c2;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .back {
+            color: #66f2c2;
+            border: 1px solid #315b58;
+            padding: 10px 16px;
+            border-radius: 10px;
+        }
+
+        .hero {
+            padding: 55px 7% 30px;
+            background: radial-gradient(ellipse at top, #16304a, #080d18 70%);
+        }
+
+        .hero h1 {
+            font-size: clamp(30px, 5vw, 48px);
+            margin: 0 0 12px;
+        }
+
+        .hero h1 span { color: #66f2c2; }
+
+        .hero p { color: #a8b7ce; line-height: 1.7; }
+
+        main { padding: 20px 7% 70px; }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 15px 0 30px;
+        }
+
+        .filters input,
+        .filters select,
+        .filters button {
+            padding: 13px 15px;
+            border-radius: 10px;
+            border: 1px solid #293b55;
+            background: #101b2c;
+            color: #edf4ff;
+            font-size: 15px;
+        }
+
+        .filters input { flex: 1; min-width: 180px; }
+        .filters select { min-width: 190px; }
+        .filters button {
+            background: #66f2c2;
+            color: #07140f;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
+            gap: 22px;
+        }
+
+        .dish {
+            overflow: hidden;
+            background: #101a2a;
+            border: 1px solid #24344b;
+            border-radius: 17px;
+            transition: transform .25s, border-color .25s;
+        }
+
+        .dish:hover {
+            transform: translateY(-5px);
+            border-color: #66f2c2;
+        }
+
+        .dish img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            background: #1b2a40;
+        }
+
+        .placeholder {
+            height: 180px;
+            display: grid;
+            place-items: center;
+            font-size: 52px;
+            background: linear-gradient(135deg, #142b3b, #20213c);
+        }
+
+        .dish-body { padding: 18px; }
+
+        .category {
+            display: inline-block;
+            color: #66f2c2;
+            background: #15332f;
+            padding: 6px 9px;
+            border-radius: 7px;
+            font-size: 12px;
+        }
+
+        .dish h2 { font-size: 20px; margin: 14px 0 9px; }
+
+        .description {
+            color: #a8b7ce;
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 44px;
+        }
+
+        .details {
+            color: #a8b7ce;
+            font-size: 13px;
+            line-height: 1.8;
+            margin-top: 12px;
+        }
+
+        .price {
+            color: #66f2c2;
+            font-size: 22px;
+            font-weight: 800;
+            margin-top: 16px;
+        }
+
+        .empty {
+            color: #a8b7ce;
+            text-align: center;
+            padding: 50px 15px;
+            border: 1px dashed #34465e;
+            border-radius: 15px;
+        }
+
+        footer {
+            padding: 25px;
+            text-align: center;
+            color: #8091aa;
+            border-top: 1px solid #24334b;
+        }
+
+        @media (max-width: 600px) {
+            header, .hero, main { padding-left: 5%; padding-right: 5%; }
+            .filters > * { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a class="logo" href="/">✦ SMART CAFETERIA</a>
+    <a class="back" href="/">← Башкы бет</a>
+</header>
+
+<section class="hero">
+    <h1>Тамактар <span>каталогу</span></h1>
+    <p>Мектеп ашканасындагы тамактарды карап, курамын,
+       калориясын жана баасын бил.</p>
+</section>
+
+<main>
+    <form class="filters" method="get">
+        <input
+            type="search"
+            name="q"
+            placeholder="Тамак издөө..."
+            value="{{ search_query }}"
+        >
+
+        <select name="category">
+            <option value="">Бардык категориялар</option>
+            {% for key, label in categories %}
+                <option value="{{ key }}"
+                    {% if selected_category == key %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Издөө</button>
+    </form>
+
+    {% if dishes %}
+        <div class="grid">
+            {% for dish in dishes %}
+                <article class="dish">
+                    {% if dish.image %}
+                        <img src="{{ dish.image.url }}"
+                             alt="{{ dish.name }}">
+                    {% else %}
+                        <div class="placeholder">🍽️</div>
+                    {% endif %}
+
+                    <div class="dish-body">
+                        <span class="category">{{ dish.get_category_display }}</span>
+                        <h2>{{ dish.name }}</h2>
+
+                        <p class="description">
+                            {{ dish.description|default:"Даамдуу тамак"|truncatewords:20 }}
+                        </p>
+
+                        {% if dish.ingredients %}
+                            <div class="details">
+                                <strong>Курамы:</strong> {{ dish.ingredients|truncatewords:15 }}
+                            </div>
+                        {% endif %}
+
+                        {% if dish.calories != None %}
+                            <div class="details">
+                                🔥 {{ dish.calories }} ккал
+                            </div>
+                        {% endif %}
+
+                        <div class="price">{{ dish.price }} сом</div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty">
+            <h2>🍽️ Азырынча тамак табылган жок</h2>
+            <p>Башка категорияны танда же админ-панелден тамак кош.</p>
+        </div>
+    {% endif %}
+</main>
+
+<footer>© 2026 Smart School Cafeteria AI FoodBot</footer>
+
+</body>
+</html>
