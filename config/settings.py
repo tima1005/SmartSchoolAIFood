@@ -12,17 +12,11 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() in {
     "1", "true", "yes"
 }
 
-ALLOWED_HOSTS = (
-    ["127.0.0.1", "localhost"]
-    if DEBUG
-    else [
-        host.strip()
-        for host in os.environ.get(
-            "DJANGO_ALLOWED_HOSTS", ""
-        ).split(",")
-        if host.strip()
-    ]
-)
+ALLOWED_HOSTS = [
+    "smartschoolaifood.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
