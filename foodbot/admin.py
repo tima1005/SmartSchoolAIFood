@@ -1,7 +1,13 @@
-
 from django.contrib import admin
-from .models import Dish, DailyMenu, MenuEntry, Order, OrderItem
-
+from .models import (
+    Dish,
+    DailyMenu,
+    MenuEntry,
+    Order,
+    OrderItem,
+    FinanceExpense,
+    FoodWaste,
+)
 
 class MenuEntryInline(admin.TabularInline):
     model = MenuEntry
@@ -39,3 +45,22 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ("order", "dish", "quantity", "price")
     list_filter = ("dish",)
+
+@admin.register(FinanceExpense)
+class FinanceExpenseAdmin(admin.ModelAdmin):
+    list_display = ("title", "category", "amount", "date")
+    list_filter = ("category", "date")
+    search_fields = ("title", "description")
+
+
+@admin.register(FoodWaste)
+class FoodWasteAdmin(admin.ModelAdmin):
+    list_display = (
+        "dish",
+        "quantity",
+        "cost_per_portion",
+        "total_loss",
+        "date",
+    )
+    list_filter = ("date",)
+    search_fields = ("reason",)

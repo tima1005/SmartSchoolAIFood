@@ -4,51 +4,29 @@ from django.db import models
 
 class Dish(models.Model):
     CATEGORY_CHOICES = [
-        ("breakfast", "Эртең мененки тамак"),
-        ("lunch", "Түшкү тамак"),
-        ("snack", "Жеңил тамак"),
-        ("drink", "Суусундук"),
-        ("dessert", "Десерт"),
+        ("breakfast", "Завтрак"),
+        ("lunch", "Обед"),
+        ("snack", "Перекус"),
+        ("drink", "Напитки"),
+        ("dessert", "Десерты"),
     ]
 
-    name = models.CharField("Тамактын аталышы", max_length=150)
-    description = models.TextField("Сүрөттөмө", blank=True)
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
     category = models.CharField(
-        "Категория",
         max_length=20,
-        choices=CATEGORY_CHOICES,
-        default="lunch",
+        choices=CATEGORY_CHOICES
     )
-    price = models.DecimalField(
-        "Баасы (сом)",
-        max_digits=8,
-        decimal_places=2,
-    )
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(
-        "Сүрөт",
         upload_to="dishes/",
         blank=True,
-        null=True,
+        null=True
     )
-    ingredients = models.TextField("Курамы", blank=True)
-    calories = models.PositiveIntegerField(
-        "Калория (ккал)",
-        blank=True,
-        null=True,
-    )
-    is_available = models.BooleanField(
-        "Сатууда бар",
-        default=True,
-    )
-    created_at = models.DateTimeField(
-        "Түзүлгөн убакыт",
-        auto_now_add=True,
-    )
-
-    class Meta:
-        verbose_name = "Тамак"
-        verbose_name_plural = "Тамактар"
-        ordering = ["name"]
+    ingredients = models.TextField(blank=True)
+    calories = models.PositiveIntegerField(default=0)
+    is_available = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -56,151 +34,179 @@ class Dish(models.Model):
 
 class DailyMenu(models.Model):
     MEAL_CHOICES = [
-        ("breakfast", "Эртең мененки тамак"),
-        ("lunch", "Түшкү тамак"),
-        ("snack", "Жеңил тамак"),
+        ("breakfast", "Завтрак"),
+        ("lunch", "Обед"),
+        ("snack", "Перекус"),
     ]
 
-    title = models.CharField("Менюнун аталышы", max_length=150)
-    date = models.DateField("Күнү")
+    title = models.CharField(max_length=200)
+    date = models.DateField()
     meal_type = models.CharField(
-        "Тамактануу түрү",
         max_length=20,
-        choices=MEAL_CHOICES,
-        default="lunch",
+        choices=MEAL_CHOICES
     )
-    description = models.TextField("Сүрөттөмө", blank=True)
+    description = models.TextField(blank=True)
     dishes = models.ManyToManyField(
         Dish,
         through="MenuEntry",
-        related_name="menus",
-        verbose_name="Тамактар",
-        blank=True,
+        related_name="daily_menus"
     )
-    is_published = models.BooleanField(
-        "Жарыяланган",
-        default=False,
-    )
-    created_at = models.DateTimeField(
-        "Түзүлгөн убакыт",
-        auto_now_add=True,
-    )
-
-    class Meta:
-        verbose_name = "Меню"
-        verbose_name_plural = "Менюлар"
-        ordering = ["date", "meal_type"]
+    is_published = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.title} — {self.date}"
+        return self.title
 
 
 class MenuEntry(models.Model):
     menu = models.ForeignKey(
         DailyMenu,
-        on_delete=models.CASCADE,
-        related_name="entries",
-        verbose_name="Меню",
+        on_delete=models.CASCADE
     )
     dish = models.ForeignKey(
         Dish,
-        on_delete=models.CASCADE,
-        related_name="menu_entries",
-        verbose_name="Тамак",
+        on_delete=models.CASCADE
     )
-    quantity = models.PositiveIntegerField(
-        "Порция саны",
-        default=1,
-    )
+    quantity = models.PositiveIntegerField(default=1)
 
     class Meta:
-        verbose_name = "Менюдагы тамак"
-        verbose_name_plural = "Менюдагы тамактар"
         constraints = [
             models.UniqueConstraint(
                 fields=["menu", "dish"],
-                name="unique_dish_in_menu",
+                name="unique_dish_in_menu"
             )
         ]
 
     def __str__(self):
-        return f"{self.dish.name} — {self.menu.title}"
+        return f"{self.menu} — {self.dish}"
 
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ("pending", "Күтүүдө"),
-        ("confirmed", "Ырасталды"),
-        ("preparing", "Даярдалууда"),
-        ("ready", "Даяр"),
-        ("completed", "Аяктады"),
-        ("cancelled", "Жокко чыгарылды"),
+        ("pending", "Ожидает"),
+        ("confirmed", "Подтверждён"),
+        ("preparing", "Готовится"),
+        ("ready", "Готов"),
+        ("completed", "Завершён"),
+        ("cancelled", "Отменён"),
     ]
 
-    customer_name = models.CharField(
-        "Окуучунун аты-жөнү",
-        max_length=150,
-        default="Белгисиз",
-    )
-    class_name = models.CharField(
-        "Классы",
-        max_length=30,
-        blank=True,
-    )
-    phone = models.CharField(
-        "Телефон",
-        max_length=30,
-        blank=True,
-    )
+    customer_name = models.CharField(max_length=200)
+    class_name = models.CharField(max_length=50)
+    phone = models.CharField(max_length=30)
     status = models.CharField(
-        "Заказдын статусу",
         max_length=20,
         choices=STATUS_CHOICES,
-        default="pending",
+        default="pending"
     )
     total_price = models.DecimalField(
-        "Жалпы сумма (сом)",
         max_digits=10,
         decimal_places=2,
-        default=0,
+        default=0
     )
-    note = models.TextField("Кошумча маалымат", blank=True)
-    created_at = models.DateTimeField(
-        "Заказ берилген убакыт",
-        auto_now_add=True,
-    )
-
-    class Meta:
-        verbose_name = "Заказ"
-        verbose_name_plural = "Заказдар"
-        ordering = ["-created_at"]
+    note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Заказ #{self.pk} — {self.customer_name}"
+        return f"Заказ #{self.id} — {self.customer_name}"
 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
-        related_name="items",
-        verbose_name="Заказ",
+        related_name="items"
     )
     dish = models.ForeignKey(
         Dish,
-        on_delete=models.PROTECT,
-        verbose_name="Тамак",
+        on_delete=models.CASCADE
     )
-    quantity = models.PositiveIntegerField("Саны", default=1)
+    quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(
-        "Бир порциянын баасы",
-        max_digits=8,
-        decimal_places=2,
+        max_digits=10,
+        decimal_places=2
     )
-
-    class Meta:
-        verbose_name = "Заказдагы тамак"
-        verbose_name_plural = "Заказдагы тамактар"
 
     def __str__(self):
         return f"{self.dish.name} × {self.quantity}"
+
+
+class FinanceExpense(models.Model):
+    CATEGORY_CHOICES = [
+        ("products", "Продукты"),
+        ("salary", "Зарплата"),
+        ("utilities", "Коммунальные услуги"),
+        ("equipment", "Оборудование"),
+        ("other", "Другие расходы"),
+    ]
+
+    title = models.CharField(
+        max_length=200,
+        verbose_name="Название расхода"
+    )
+    category = models.CharField(
+        max_length=30,
+        choices=CATEGORY_CHOICES,
+        default="other",
+        verbose_name="Категория"
+    )
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Сумма (сом)"
+    )
+    description = models.TextField(
+        blank=True,
+        verbose_name="Описание"
+    )
+    date = models.DateField(
+        auto_now_add=True,
+        verbose_name="Дата"
+    )
+
+    def __str__(self):
+        return f"{self.title} — {self.amount} сом"
+
+    class Meta:
+        verbose_name = "Расход"
+        verbose_name_plural = "Расходы"
+        ordering = ["-date"]
+
+
+class FoodWaste(models.Model):
+    dish = models.ForeignKey(
+        Dish,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Блюдо"
+    )
+    quantity = models.PositiveIntegerField(
+        verbose_name="Количество порций"
+    )
+    cost_per_portion = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Себестоимость одной порции (сом)"
+    )
+    reason = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Причина отходов"
+    )
+    date = models.DateField(
+        auto_now_add=True,
+        verbose_name="Дата"
+    )
+
+    @property
+    def total_loss(self):
+        return self.quantity * self.cost_per_portion
+
+    def __str__(self):
+        return f"{self.quantity} порций — {self.total_loss} сом"
+
+    class Meta:
+        verbose_name = "Пищевой отход"
+        verbose_name_plural = "Пищевые отходы"
+        ordering = ["-date"]

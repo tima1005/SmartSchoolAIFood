@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Финансовая аналитика</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            background: #080f20;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container { max-width: 1200px; margin: auto; }
+        h1 { color: #63d9d1; }
+        .subtitle { color: #9ba8bc; }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .card {
+            background: #142238;
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid #263b55;
+        }
+        .card p { color: #9ba8bc; }
+        .income { color: #63d9d1; }
+        .expenses { color: #ffbd7a; }
+        .waste { color: #ff8eae; }
+        .profit { color: #63d9d1; }
+        .details {
+            margin-top: 30px;
+            padding: 25px;
+            background: #142238;
+            border-radius: 16px;
+        }
+        a { color: #63d9d1; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Финансовая аналитика</h1>
+    <p class="subtitle">Показатели школьной столовой за текущий месяц</p>
+
+    <div class="cards">
+        <div class="card">
+            <p>Доход</p>
+            <h2 class="income">{{ income|floatformat:2 }} сом</h2>
+        </div>
+
+        <div class="card">
+            <p>Расходы</p>
+            <h2 class="expenses">{{ expenses|floatformat:2 }} сом</h2>
+        </div>
+
+        <div class="card">
+            <p>Потери от пищевых отходов</p>
+            <h2 class="waste">{{ waste_total|floatformat:2 }} сом</h2>
+        </div>
+
+        <div class="card">
+            <p>Чистый финансовый результат</p>
+            <h2 class="{% if profit >= 0 %}profit{% else %}waste{% endif %}">
+                {{ profit|floatformat:2 }} сом
+            </h2>
+        </div>
+    </div>
+
+    <div class="details">
+        <h2>Дополнительная информация</h2>
+        <p>Завершённые заказы: {{ orders_count }}</p>
+        <p>Списанные порции: {{ waste_count }}</p>
+        <p>Общие расходы: {{ total_costs|floatformat:2 }} сом</p>
+    </div>
+
+    <p style="margin-top: 30px;">
+        <a href="/">← Вернуться на главную</a>
+    </p>
+</div>
+</body>
+</html>
